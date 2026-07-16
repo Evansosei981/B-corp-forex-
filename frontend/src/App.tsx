@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react'
 const LandingPage = React.lazy(() => import('./pages/LandingPage'))
 const LoginPage = React.lazy(() => import('./pages/auth/LoginPage'))
 const RegisterPage = React.lazy(() => import('./pages/auth/RegisterPage'))
+const VerifyEmail = React.lazy(() => import('./pages/auth/VerifyEmail'))
 const StudentDashboard = React.lazy(() => import('./pages/dashboard/StudentDashboard'))
 const AdminDashboard = React.lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminLayout = React.lazy(() => import('./pages/admin/AdminLayout'))
@@ -40,6 +41,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify" element={<VerifyEmail />} />
             <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><StudentDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><StudentSettings /></ProtectedRoute>} />
             <Route path="/dashboard/wishlist" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><WishlistPage /></ProtectedRoute>} />

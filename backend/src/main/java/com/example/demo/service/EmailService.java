@@ -20,6 +20,9 @@ public class EmailService {
     @Value("${spring.mail.username:noreply@bcorp.com}")
     private String fromEmail;
 
+    @Value("${frontend.url:https://b-corp-forex.vercel.app}")
+    private String frontendUrl;
+
     @Async
     public void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {
@@ -49,6 +52,23 @@ public class EmailService {
             "<p>Get ready to master the markets with our professional-grade curriculum.</p>" +
             "<br><p>Best regards,<br>The B Corp Team</p>",
             firstName
+        );
+        sendHtmlEmail(to, subject, body);
+    }
+
+    public void sendVerificationEmail(String to, String firstName, String token) {
+        String subject = "Verify your email - B Corp Forex Academy";
+        String verificationLink = frontendUrl + "/verify?token=" + token;
+        
+        String body = String.format(
+            "<h1>Welcome %s!</h1>" +
+            "<p>Please click the button below to verify your email address and activate your account:</p>" +
+            "<br>" +
+            "<a href=\"%s\" style=\"background-color: #eab308; color: #1a1a1a; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;\">Verify Email</a>" +
+            "<br><br>" +
+            "<p>Or copy this link: %s</p>" +
+            "<br><p>Best regards,<br>The B Corp Team</p>",
+            firstName, verificationLink, verificationLink
         );
         sendHtmlEmail(to, subject, body);
     }

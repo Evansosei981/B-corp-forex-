@@ -14,10 +14,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.model.VerificationToken;
+import com.example.demo.repository.VerificationTokenRepository;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository repository;
+    private final VerificationTokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -39,16 +45,24 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER) // Default role is USER until they purchase a course
+                .isEnabled(false) // Require email verification
                 .build();
                 
         repository.save(user);
         
-        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = VerificationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(LocalDateTime.now().plusHours(24))
+                .build();
+        tokenRepository.save(verificationToken);
         
-        var jwtToken = jwtService.generateToken(user);
+        emailService.sendVerificationEmail(user.getEmail(), user.getFirstName(), token);
         
+        // Return a response without a JWT token since they can't login yet
         return AuthenticationResponse.builder()
-                .token(jwtToken)
+                .token("")
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -65,6 +79,10 @@ public class AuthenticationService {
         );
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
+                
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Please verify your email address before logging in.");
+        }
                 
         var jwtToken = jwtService.generateToken(user);
         

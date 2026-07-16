@@ -25,6 +25,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .email("admin@bcorp.com")
                     .password(passwordEncoder.encode("admin123"))
                     .role(Role.ADMIN)
+                    .isEnabled(true)
                     .build();
             userRepository.save(admin);
             // Admin user seeded

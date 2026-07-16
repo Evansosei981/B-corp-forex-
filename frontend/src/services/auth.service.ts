@@ -20,6 +20,11 @@ export const authService = {
     return response.data;
   },
 
+  verifyEmail: async (token: string) => {
+    const response = await api.get<string>(`/auth/verify?token=${token}`);
+    return response.data;
+  },
+
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

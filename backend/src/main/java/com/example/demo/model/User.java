@@ -44,6 +44,9 @@ public class User implements UserDetails {
     
     private String profilePicture;
 
+    @Column(nullable = false)
+    private boolean isEnabled = false;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
     
@@ -87,6 +90,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return isEnabled;
     }
 }
