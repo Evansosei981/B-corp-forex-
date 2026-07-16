@@ -23,7 +23,7 @@ public class EmailService {
     @Value("${frontend.url:https://b-corp-forex.vercel.app}")
     private String frontendUrl;
 
-    @Async
+    // Removed @Async from here because internal calls bypass the Spring Proxy
     public void sendHtmlEmail(String to, String subject, String htmlBody) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -44,6 +44,7 @@ public class EmailService {
         }
     }
 
+    @Async
     public void sendWelcomeEmail(String to, String firstName) {
         String subject = "Welcome to B Corp Forex Academy!";
         String body = String.format(
@@ -56,6 +57,7 @@ public class EmailService {
         sendHtmlEmail(to, subject, body);
     }
 
+    @Async
     public void sendVerificationEmail(String to, String firstName, String token) {
         String subject = "Verify your email - B Corp Forex Academy";
         String verificationLink = frontendUrl + "/verify?token=" + token;
@@ -73,6 +75,7 @@ public class EmailService {
         sendHtmlEmail(to, subject, body);
     }
 
+    @Async
     public void sendPaymentPendingEmail(String to, String courseTitle) {
         String subject = "Payment Received - Pending Verification";
         String body = String.format(
@@ -85,6 +88,7 @@ public class EmailService {
         sendHtmlEmail(to, subject, body);
     }
 
+    @Async
     public void sendCourseUnlockedEmail(String to, String courseTitle) {
         String subject = "Course Unlocked! Start Learning Now";
         String body = String.format(
