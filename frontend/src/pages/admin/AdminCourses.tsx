@@ -10,6 +10,7 @@ export default function AdminCourses() {
 
   // Form states
   const [showModal, setShowModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -32,6 +33,8 @@ export default function AdminCourses() {
 
   const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await courseService.createCourse({
         title,
@@ -45,10 +48,11 @@ export default function AdminCourses() {
       setPrice('');
       setDifficultyLevel('Beginner');
       fetchCourses();
-      fetchCourses();
     } catch (err: any) {
       console.error(err);
       alert("Failed to create course: " + (err.response?.data?.error || err.response?.data?.message || err.message));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -194,9 +198,10 @@ export default function AdminCourses() {
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 bg-gold-500 hover:bg-gold-400 text-background px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-gold-500 hover:bg-gold-400 text-background px-4 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
                 >
-                  Create Course
+                  {isSubmitting ? 'Creating...' : 'Create Course'}
                 </button>
               </div>
             </form>
