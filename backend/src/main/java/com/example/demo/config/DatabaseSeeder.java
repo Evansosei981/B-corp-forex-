@@ -29,6 +29,15 @@ public class DatabaseSeeder implements CommandLineRunner {
                     .build();
             userRepository.save(admin);
             // Admin user seeded
+            System.out.println("Admin user seeded.");
+        } else {
+            // Ensure existing admin is enabled
+            User admin = userRepository.findByEmail("admin@bcorp.com").get();
+            if (!admin.isEnabled()) {
+                admin.setEnabled(true);
+                userRepository.save(admin);
+                System.out.println("Existing Admin user enabled.");
+            }
         }
 
         if (appSettingRepository.count() == 0) {
