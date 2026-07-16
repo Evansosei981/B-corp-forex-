@@ -71,12 +71,16 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (org.springframework.security.authentication.DisabledException e) {
+            throw new RuntimeException("Please verify your email address before logging in. Check your inbox for the verification link.");
+        }
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
                 
