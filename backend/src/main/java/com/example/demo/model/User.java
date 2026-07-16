@@ -44,7 +44,7 @@ public class User implements UserDetails {
     
     private String profilePicture;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isEnabled = false;
 
     @Column(updatable = false)
