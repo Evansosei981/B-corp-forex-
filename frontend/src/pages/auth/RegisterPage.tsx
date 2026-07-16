@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema, type RegisterCredentials } from '../../utils/types';
@@ -7,7 +7,8 @@ import { authService } from '../../services/auth.service';
 
 export default function RegisterPage() {
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterCredentials>({
     resolver: zodResolver(registerSchema)
@@ -17,7 +18,11 @@ export default function RegisterPage() {
     try {
       setError('');
       await authService.register(data);
-      setSuccess(true);
+      
+      const searchParams = new URLSearchParams(location.search);
+      const redirectUrl = searchParams.get('redirect');
+      
+      navigate(redirectUrl || '/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed. Please try again.');
     }
@@ -47,23 +52,7 @@ export default function RegisterPage() {
             </div>
           )}
 
-          {success ? (
-            <div className="text-center py-6">
-              <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">Check your email</h3>
-              <p className="text-foreground-muted mb-6">
-                We've sent a verification link to your email address. Please click the link to activate your account.
-              </p>
-              <Link to="/login" className="text-gold-500 font-medium hover:text-gold-400">
-                Return to login
-              </Link>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-1.5">First name</label>
@@ -120,7 +109,6 @@ export default function RegisterPage() {
               {isSubmitting ? 'Creating account...' : 'Create account'}
             </button>
           </form>
-          )}
         </div>
         
         <div className="mt-6 text-center text-sm text-foreground-muted">

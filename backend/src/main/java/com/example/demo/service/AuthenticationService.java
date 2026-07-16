@@ -45,24 +45,18 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER) // Default role is USER until they purchase a course
-                .isEnabled(false) // Require email verification
+                .isEnabled(true) // Disable email verification temporarily
                 .build();
                 
         repository.save(user);
         
-        String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = VerificationToken.builder()
-                .token(token)
-                .user(user)
-                .expiryDate(LocalDateTime.now().plusHours(24))
-                .build();
-        tokenRepository.save(verificationToken);
+        // We can still try to send the welcome email in the background
+        emailService.sendWelcomeEmail(user.getEmail(), user.getFirstName());
         
-        emailService.sendVerificationEmail(user.getEmail(), user.getFirstName(), token);
+        var jwtToken = jwtService.generateToken(user);
         
-        // Return a response without a JWT token since they can't login yet
         return AuthenticationResponse.builder()
-                .token("")
+                .token(jwtToken)
                 .email(user.getEmail())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())

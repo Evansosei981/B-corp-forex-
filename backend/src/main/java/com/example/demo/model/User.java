@@ -44,8 +44,8 @@ public class User implements UserDetails {
     
     private String profilePicture;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean isEnabled = false;
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean isEnabled = true;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
