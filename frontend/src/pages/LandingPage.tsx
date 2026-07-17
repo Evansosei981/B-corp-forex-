@@ -13,6 +13,8 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { buttonVariants } from '@/components/ui/button'
 import { AnimatedSection } from '@/components/AnimatedSection'
+import { AnimatedCounter } from '@/components/AnimatedCounter'
+import { motion } from 'framer-motion'
 
 const features = [
   {
@@ -36,10 +38,10 @@ const features = [
 ]
 
 const stats = [
-  { value: '12,400+', label: 'Active students' },
-  { value: '4.9/5', label: 'Average rating' },
-  { value: '38', label: 'Expert-led courses' },
-  { value: '92%', label: 'Completion rate' },
+  { value: 12400, label: 'Active students', suffix: '+' },
+  { value: 4.9, label: 'Average rating', suffix: '/5' },
+  { value: 38, label: 'Expert-led courses', suffix: '' },
+  { value: 92, label: 'Completion rate', suffix: '%' },
 ]
 
 export default function LandingPage() {
@@ -91,9 +93,17 @@ export default function LandingPage() {
             </div>
 
             {/* Dashboard mockup */}
-            <div className="relative mx-auto mt-16 max-w-5xl animate-scale-in [animation-delay:750ms]">
-              <div className="glow-gold overflow-hidden rounded-2xl border border-border bg-card">
-                <div className="flex items-center gap-1.5 border-b border-border bg-secondary/40 px-4 py-3">
+            <motion.div 
+              initial={{ y: 20 }}
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+              className="relative mx-auto mt-16 max-w-5xl animate-scale-in [animation-delay:750ms]"
+            >
+              {/* Glowing Aura behind mockup */}
+              <div className="absolute inset-0 -m-8 rounded-full bg-primary/20 blur-[100px] animate-breathe pointer-events-none" />
+              
+              <div className="glow-gold overflow-hidden rounded-2xl border border-border/50 bg-card/80 backdrop-blur-md relative z-10">
+                <div className="flex items-center gap-1.5 border-b border-border/50 bg-secondary/20 px-4 py-3 backdrop-blur-sm">
                   <span className="size-3 rounded-full bg-muted-foreground/30" />
                   <span className="size-3 rounded-full bg-muted-foreground/30" />
                   <span className="size-3 rounded-full bg-muted-foreground/30" />
@@ -107,17 +117,17 @@ export default function LandingPage() {
                   className="h-auto w-full object-cover"
                 />
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
         {/* Stats */}
-        <section className="border-y border-border/60 bg-card/30">
+        <section className="border-y border-border/60 bg-card/30 backdrop-blur-sm">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px px-4 sm:px-6 lg:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="px-2 py-8 text-center">
                 <p className="text-3xl font-semibold tracking-tight text-primary">
-                  {stat.value}
+                  <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {stat.label}
@@ -141,19 +151,23 @@ export default function LandingPage() {
           </div>
           <div className="mt-14 grid gap-6 md:grid-cols-3">
             {features.map((feature, index) => (
-              <AnimatedSection
+              <motion.div
                 key={feature.title}
-                delay={index * 150}
-                className="group rounded-2xl border border-border bg-card p-7 transition-all hover:border-primary/40 hover:-translate-y-1 hover:shadow-xl"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: index * 0.15 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-7 backdrop-blur-xl transition-all hover:border-primary/50 hover:shadow-[0_0_30px_-5px_rgba(234,179,8,0.3)]"
               >
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/30">
                   <feature.icon className="size-5" />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <h3 className="mt-5 text-lg font-semibold text-white">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
                   {feature.description}
                 </p>
-              </AnimatedSection>
+              </motion.div>
             ))}
           </div>
         </section>

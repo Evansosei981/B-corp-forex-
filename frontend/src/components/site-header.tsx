@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Logo } from '@/components/logo'
+import { motion, useScroll, useTransform } from 'framer-motion'
 
 const links = [
   { label: 'Courses', href: '/catalog' },
@@ -12,9 +13,32 @@ const links = [
 
 export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { scrollY } = useScroll()
+
+  // Make the background transparent at the top, and glassmorphism when scrolled
+  const backgroundColor = useTransform(
+    scrollY,
+    [0, 50],
+    ['rgba(15, 23, 42, 0)', 'rgba(15, 23, 42, 0.75)']
+  )
+  
+  const borderColor = useTransform(
+    scrollY,
+    [0, 50],
+    ['rgba(51, 65, 85, 0)', 'rgba(51, 65, 85, 0.5)']
+  )
+
+  const backdropBlur = useTransform(
+    scrollY,
+    [0, 50],
+    ['blur(0px)', 'blur(16px)']
+  )
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+    <motion.header 
+      style={{ backgroundColor, borderColor, backdropFilter: backdropBlur }}
+      className="fixed top-0 left-0 right-0 z-50 border-b"
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-4">
           <button 
@@ -97,6 +121,6 @@ export function SiteHeader() {
           </nav>
         </div>
       )}
-    </header>
+    </motion.header>
   )
 }
