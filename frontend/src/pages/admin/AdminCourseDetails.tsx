@@ -6,7 +6,7 @@ import type { Course } from '../../utils/types';
 interface Lesson {
   id?: number;
   title: string;
-  videoUrl: string;
+  meetingUrl: string;
   orderIndex: number;
 }
 
@@ -30,8 +30,8 @@ export default function AdminCourseDetails() {
   const [showLessonModal, setShowLessonModal] = useState(false);
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   const [lessonTitle, setLessonTitle] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
+  const [meetingUrl, setMeetingUrl] = useState('');
+  const [content, setContent] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
@@ -75,45 +75,24 @@ export default function AdminCourseDetails() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const res = await api.post('/uploads', formData, {
-        headers: {
-          'Content-Type': undefined
-        }
-      });
-      setVideoUrl(res.data.url);
-    } catch (err) {
-      console.error('Upload failed', err);
-      alert('Upload failed. Please try again.');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const handleAddLesson = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedModuleId || !videoUrl) return;
+    if (!selectedModuleId || !meetingUrl) return;
 
     const currentModule = modules.find(m => m.id === selectedModuleId);
     
     try {
       await api.post(`/courses/modules/${selectedModuleId}/lessons`, {
         title: lessonTitle,
-        videoUrl: videoUrl,
+        meetingUrl: meetingUrl,
+        content: content,
         orderIndex: currentModule?.lessons.length || 0,
         isFreePreview: false
       });
       setShowLessonModal(false);
       setLessonTitle('');
-      setVideoUrl('');
+      setMeetingUrl('');
+      setContent('');
       fetchData();
     } catch (err) {
       console.error(err);
@@ -166,7 +145,7 @@ export default function AdminCourseDetails() {
                       <div className="text-slate-500 font-mono text-sm">{idx + 1}.</div>
                       <div className="flex-1">
                         <div className="text-white font-medium">{lesson.title}</div>
-                        <div className="text-xs text-blue-400 truncate max-w-md">{lesson.videoUrl}</div>
+                        <div className="text-xs text-blue-400 truncate max-w-md">{lesson.meetingUrl}</div>
                       </div>
                     </div>
                   ))
@@ -218,19 +197,29 @@ export default function AdminCourseDetails() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Upload Video (.mp4)</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Meeting Link (Google Meet, Zoom, etc)</label>
                 <input 
-                  type="file"
-                  accept="video/mp4,video/*"
-                  onChange={handleFileUpload}
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30"
+                  type="url"
+                  required
+                  value={meetingUrl}
+                  onChange={e => setMeetingUrl(e.target.value)}
+                  placeholder="https://meet.google.com/..."
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
-                {isUploading && <p className="text-sm text-blue-400 mt-2">Uploading video... please wait.</p>}
-                {videoUrl && <p className="text-sm text-green-400 mt-2">✓ Video uploaded successfully</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Course Notes / Agenda</label>
+                <textarea 
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  placeholder="What will be covered in this class?"
+                  rows={4}
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                />
               </div>
               <div className="flex gap-4 mt-8">
                 <button type="button" onClick={() => setShowLessonModal(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-xl font-medium transition-colors">Cancel</button>
-                <button type="submit" disabled={isUploading || !videoUrl} className="flex-1 bg-blue-600 hover:bg-blue-500 px-4 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Add Lesson</button>
+                <button type="submit" disabled={!meetingUrl} className="flex-1 bg-blue-600 hover:bg-blue-500 px-4 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Add Class</button>
               </div>
             </form>
           </div>

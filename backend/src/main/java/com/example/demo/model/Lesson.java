@@ -24,7 +24,7 @@ public class Lesson {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String videoUrl;
+    private String meetingUrl;
     
     private String resourceUrl;
 

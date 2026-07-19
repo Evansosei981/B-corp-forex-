@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.model.VerificationToken;
 import com.example.demo.repository.VerificationTokenRepository;
+import com.example.demo.repository.AppSettingRepository;
+import com.example.demo.model.AppSetting;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class AuthenticationService {
     private final UserRepository repository;
     private final VerificationTokenRepository tokenRepository;
+    private final AppSettingRepository appSettingRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -80,6 +83,18 @@ public class AuthenticationService {
                 
         if (!user.isEnabled()) {
             throw new RuntimeException("Please verify your email address before logging in.");
+        }
+        
+        if (user.getRole() == Role.ADMIN) {
+            boolean adminDisabled = appSettingRepository.findBySettingKey("dev_adminLoginDisabled")
+                    .map(s -> "true".equalsIgnoreCase(s.getSettingValue()))
+                    .orElse(false);
+            if (adminDisabled) {
+                String disabledMessage = appSettingRepository.findBySettingKey("dev_adminDisabledMessage")
+                        .map(AppSetting::getSettingValue)
+                        .orElse("Admin access is temporarily restricted by the Developer.");
+                throw new RuntimeException(disabledMessage);
+            }
         }
                 
         var jwtToken = jwtService.generateToken(user);

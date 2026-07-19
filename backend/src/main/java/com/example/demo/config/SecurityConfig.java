@@ -34,6 +34,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/developer/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/courses/my-enrollments").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/courses/**").permitAll()
@@ -61,7 +62,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of("*")); // Allow Vercel production domain
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Range"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Range", "X-Developer-Key"));
         configuration.setExposedHeaders(List.of("Accept-Ranges", "Content-Encoding", "Content-Length", "Content-Range"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

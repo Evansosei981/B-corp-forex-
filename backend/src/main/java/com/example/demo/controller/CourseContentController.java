@@ -62,7 +62,7 @@ public class CourseContentController {
         if (!isEnrolledOrAdmin) {
             lessons.forEach(l -> {
                 if (!l.isFreePreview()) {
-                    l.setVideoUrl(null);
+                    l.setMeetingUrl(null);
                 }
             });
         }

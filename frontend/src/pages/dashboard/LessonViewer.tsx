@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle, PlayCircle, Lock, BookOpen, ChevronDown, Play, Pause, Circle, Check, ArrowLeft, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { CheckCircle2, PlayCircle, Lock, ChevronDown, Circle, Check, ArrowLeft, Video } from 'lucide-react';
 import { api } from '../../services/api';
 import type { Course } from '../../utils/types';
 import { AppHeader } from '@/components/app-header';
@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils';
 interface Lesson {
   id: number;
   title: string;
-  videoUrl: string;
+  meetingUrl: string;
+  content: string;
   orderIndex: number;
 }
 
@@ -31,12 +32,6 @@ export default function LessonViewer() {
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [openModules, setOpenModules] = useState<number[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [played, setPlayed] = useState(0);
-  const [muted, setMuted] = useState(false);
-  const [videoEnded, setVideoEnded] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -61,9 +56,6 @@ export default function LessonViewer() {
         // Auto-select first lesson if available
         if (modulesData.length > 0 && modulesData[0].lessons.length > 0) {
           setActiveLesson(modulesData[0].lessons[0]);
-          setIsPlaying(false);
-          setPlayed(0);
-          setVideoEnded(false);
         }
       } catch (err) {
         console.error(err);
@@ -80,48 +72,6 @@ export default function LessonViewer() {
     setOpenModules(prev =>
       prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]
     );
-  };
-
-  const getVideoUrl = (url: string) => {
-    if (!url) return '';
-    if (url.startsWith('http')) return url;
-    // Fallback if backend returned a relative path
-    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:8080';
-    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current && !videoEnded) {
-      const progress = videoRef.current.currentTime / videoRef.current.duration;
-      setPlayed(progress || 0);
-    }
-  };
-
-  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = parseFloat(e.target.value);
-    setPlayed(newValue);
-    if (videoRef.current) {
-      videoRef.current.currentTime = newValue * videoRef.current.duration;
-    }
-  };
-
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement && containerRef.current) {
-      containerRef.current.requestFullscreen().catch(err => console.error(err));
-    } else if (document.fullscreenElement) {
-      document.exitFullscreen().catch(err => console.error(err));
-    }
   };
 
   const handleMarkComplete = async () => {
@@ -194,9 +144,6 @@ export default function LessonViewer() {
                               type="button"
                               onClick={() => {
                                 setActiveLesson(lesson);
-                                setIsPlaying(false);
-                                setPlayed(0);
-                                setVideoEnded(false);
                               }}
                               className={cn(
                                 'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors',
@@ -208,7 +155,7 @@ export default function LessonViewer() {
                               {isCompleted ? (
                                 <CheckCircle2 className="size-4 shrink-0 text-success" />
                               ) : isActive ? (
-                                <Play className="size-4 shrink-0 fill-primary text-primary" />
+                                <PlayCircle className="size-4 shrink-0 fill-primary text-primary" />
                               ) : (
                                 <Circle className="size-4 shrink-0 opacity-50" />
                               )}
@@ -231,45 +178,33 @@ export default function LessonViewer() {
         <div className="min-w-0 flex-1">
           {activeLesson ? (
             <>
-              <div ref={containerRef} className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-black shadow-lg group">
-                <video
-                  ref={videoRef}
-                  src={getVideoUrl(activeLesson.videoUrl)}
-                  className="absolute inset-0 w-full h-full object-contain"
-                  controls
-                  controlsList="nodownload"
-                  onTimeUpdate={handleTimeUpdate}
-                  onEnded={() => {
-                    setIsPlaying(false);
-                    setVideoEnded(true);
-                  }}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                />
-
-                {/* Solid Black Cover for Lesson Completed */}
-                {videoEnded && (
-                  <div className="absolute inset-0 bg-black z-40 flex items-center justify-center flex-col gap-4">
-                    <CheckCircle2 className="size-16 text-success" />
-                    <p className="text-white font-medium">Lesson Completed!</p>
-                    <Button 
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => {
-                        setPlayed(0);
-                        if (videoRef.current) {
-                          videoRef.current.currentTime = 0;
-                          videoRef.current.play();
-                        }
-                        setVideoEnded(false);
-                        setIsPlaying(true);
-                      }}
-                    >
-                      Watch Again
-                    </Button>
+              {activeLesson.meetingUrl ? (
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/20 via-background to-secondary shadow-lg group p-12 text-center flex flex-col items-center justify-center min-h-[300px]">
+                  <div className="size-20 rounded-full bg-primary/20 flex items-center justify-center mb-6">
+                    <Video className="size-10 text-primary" />
                   </div>
-                )}
-              </div>
+                  <h2 className="text-3xl font-bold mb-4 tracking-tight">Live Class Session</h2>
+                  <p className="text-muted-foreground mb-8 max-w-md">
+                    Join the instructor and other students in the live meeting room.
+                  </p>
+                  <a 
+                    href={activeLesson.meetingUrl} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-xl shadow-primary/25"
+                  >
+                    Join Live Class
+                  </a>
+                </div>
+              ) : (
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-lg group p-12 text-center flex flex-col items-center justify-center min-h-[300px]">
+                  <Lock className="size-12 text-muted-foreground mb-4 opacity-50" />
+                  <h2 className="text-xl font-medium mb-2">Class Locked</h2>
+                  <p className="text-muted-foreground">
+                    Enroll in the course to access the live meeting link.
+                  </p>
+                </div>
+              )}
 
               <div className="mt-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
                 <div>
@@ -298,17 +233,17 @@ export default function LessonViewer() {
               <div className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
                 <h2 className="text-sm font-semibold">Instructor Notes</h2>
                 <div className="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
-                  <p>
-                    Watch the video carefully and take notes. This lesson covers critical concepts required for the upcoming modules. Make sure you fully understand the mechanics before proceeding to the next video.
-                  </p>
+                  <div className="whitespace-pre-wrap">
+                    {activeLesson.content || 'No notes provided for this class.'}
+                  </div>
                 </div>
               </div>
             </>
           ) : (
             <div className="flex h-[60vh] items-center justify-center text-muted-foreground">
               <div className="text-center">
-                <Play className="size-12 mx-auto mb-4 opacity-50" />
-                <p>Select a lesson from the sidebar to start learning.</p>
+                <PlayCircle className="size-12 mx-auto mb-4 opacity-50" />
+                <p>Select a class from the sidebar to start learning.</p>
               </div>
             </div>
           )}

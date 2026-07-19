@@ -31,7 +31,7 @@ export default function LoginPage() {
         navigate(redirectUrl || '/dashboard');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to login. Please check your credentials.');
+      setError(err.response?.data?.message || err.response?.data?.error || 'Failed to login. Please check your credentials.');
     }
   };
 
