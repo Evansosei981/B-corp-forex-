@@ -49,12 +49,12 @@ export function GlobalBanner() {
     <div className={`w-full ${config.bg} ${config.text} px-4 py-3 flex items-start sm:items-center justify-between border-b ${config.border} shadow-sm z-50 relative`}>
       <div className="flex items-start sm:items-center gap-3 flex-1">
         <Icon className="size-5 shrink-0 mt-0.5 sm:mt-0" />
-        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 font-sans">
           {announcement.title && (
-            <span className="font-bold tracking-tight">{announcement.title}</span>
+            <span className="font-bold uppercase tracking-wider text-xs sm:text-sm">{announcement.title}</span>
           )}
           {announcement.title && <span className="hidden sm:inline opacity-50">•</span>}
-          <span className="text-sm font-medium opacity-90">{announcement.message}</span>
+          <span className="text-sm font-medium opacity-95">{announcement.message}</span>
         </div>
       </div>
       <button 
