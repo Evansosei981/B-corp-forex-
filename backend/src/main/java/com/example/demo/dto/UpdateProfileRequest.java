@@ -14,4 +14,5 @@ public class UpdateProfileRequest {
     private String lastName;
     private String currentPassword;
     private String newPassword;
+    private String profilePictureUrl;
 }

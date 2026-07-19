@@ -31,6 +31,7 @@ export default function AdminCourseDetails() {
   const [selectedModuleId, setSelectedModuleId] = useState<number | null>(null);
   const [lessonTitle, setLessonTitle] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -74,22 +75,39 @@ export default function AdminCourseDetails() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await api.post('/uploads', formData, {
+        headers: {
+          'Content-Type': undefined
+        }
+      });
+      setVideoUrl(res.data.url);
+    } catch (err) {
+      console.error('Upload failed', err);
+      alert('Upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleAddLesson = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedModuleId) return;
-    
-    // Auto-convert standard youtube links to embed links if needed
-    let finalUrl = videoUrl;
-    if (finalUrl.includes('watch?v=')) {
-      finalUrl = finalUrl.replace('watch?v=', 'embed/');
-    }
+    if (!selectedModuleId || !videoUrl) return;
 
     const currentModule = modules.find(m => m.id === selectedModuleId);
     
     try {
       await api.post(`/courses/modules/${selectedModuleId}/lessons`, {
         title: lessonTitle,
-        videoUrl: finalUrl,
+        videoUrl: videoUrl,
         orderIndex: currentModule?.lessons.length || 0,
         isFreePreview: false
       });
@@ -109,7 +127,7 @@ export default function AdminCourseDetails() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">{course.title} - Curriculum</h1>
-        <p className="text-slate-400">Build your course curriculum by adding Modules and YouTube lessons.</p>
+        <p className="text-slate-400">Build your course curriculum by adding Modules and Video lessons.</p>
       </div>
 
       <div className="mb-8">
@@ -135,7 +153,7 @@ export default function AdminCourseDetails() {
                   onClick={() => { setSelectedModuleId(module.id!); setShowLessonModal(true); }}
                   className="bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
-                  + Add YouTube Lesson
+                  + Add Video Lesson
                 </button>
               </div>
               
@@ -188,7 +206,7 @@ export default function AdminCourseDetails() {
       {showLessonModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-slate-900 border border-white/10 p-8 rounded-2xl w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6 text-white">Add YouTube Lesson</h2>
+            <h2 className="text-2xl font-bold mb-6 text-white">Add Video Lesson</h2>
             <form onSubmit={handleAddLesson} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1.5">Lesson Title</label>
@@ -200,19 +218,19 @@ export default function AdminCourseDetails() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">YouTube URL</label>
+                <label className="block text-sm font-medium text-slate-300 mb-1.5">Upload Video (.mp4)</label>
                 <input 
-                  required
-                  type="url"
-                  value={videoUrl}
-                  onChange={e => setVideoUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  type="file"
+                  accept="video/mp4,video/*"
+                  onChange={handleFileUpload}
+                  className="w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600/20 file:text-blue-400 hover:file:bg-blue-600/30"
                 />
+                {isUploading && <p className="text-sm text-blue-400 mt-2">Uploading video... please wait.</p>}
+                {videoUrl && <p className="text-sm text-green-400 mt-2">✓ Video uploaded successfully</p>}
               </div>
               <div className="flex gap-4 mt-8">
                 <button type="button" onClick={() => setShowLessonModal(false)} className="flex-1 bg-slate-800 hover:bg-slate-700 px-4 py-3 rounded-xl font-medium transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-500 px-4 py-3 rounded-xl font-medium transition-colors">Add Lesson</button>
+                <button type="submit" disabled={isUploading || !videoUrl} className="flex-1 bg-blue-600 hover:bg-blue-500 px-4 py-3 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Add Lesson</button>
               </div>
             </form>
           </div>

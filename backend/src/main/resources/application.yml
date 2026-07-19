@@ -3,8 +3,8 @@ spring:
     name: bcorp-backend
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 15MB
+      max-file-size: 500MB
+      max-request-size: 500MB
   
   datasource:
     url: jdbc:postgresql://localhost:5432/bcorp
@@ -40,9 +40,15 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
+logging:
+  level:
+    org.springframework.web.cors: DEBUG
+
 server:
   port: 8080
+  tomcat:
+    max-swallow-size: -1
 
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-  expiration: 86400000 # 1 day in milliseconds
+  expiration: 86400000

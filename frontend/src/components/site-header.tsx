@@ -19,13 +19,13 @@ export function SiteHeader() {
   const backgroundColor = useTransform(
     scrollY,
     [0, 50],
-    ['rgba(15, 23, 42, 0)', 'rgba(15, 23, 42, 0.75)']
+    ['rgba(11, 14, 17, 0)', 'rgba(11, 14, 17, 0.9)']
   )
   
   const borderColor = useTransform(
     scrollY,
     [0, 50],
-    ['rgba(51, 65, 85, 0)', 'rgba(51, 65, 85, 0.5)']
+    ['rgba(43, 49, 57, 0)', 'rgba(43, 49, 57, 1)']
   )
 
   const backdropBlur = useTransform(

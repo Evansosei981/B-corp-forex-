@@ -20,7 +20,6 @@ const AdminSettings = React.lazy(() => import('./pages/admin/AdminSettings'))
 const CourseCatalog = React.lazy(() => import('./pages/dashboard/CourseCatalog'))
 const CourseCheckout = React.lazy(() => import('./pages/dashboard/CourseCheckout'))
 const LessonViewer = React.lazy(() => import('./pages/dashboard/LessonViewer'))
-const ProfileSettings = React.lazy(() => import('./pages/dashboard/ProfileSettings'))
 const StudentSettings = React.lazy(() => import('./pages/dashboard/StudentSettings'))
 const WishlistPage = React.lazy(() => import('./pages/dashboard/WishlistPage'))
 const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'))
@@ -45,7 +44,6 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><StudentDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/settings" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><StudentSettings /></ProtectedRoute>} />
             <Route path="/dashboard/wishlist" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><WishlistPage /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProfileSettings />} />
             <Route path="/catalog" element={<CourseCatalog />} />
             <Route path="/checkout/:id" element={<CourseCheckout />} />
             <Route path="/learn/:id" element={<ProtectedRoute allowedRoles={['STUDENT', 'ADMIN', 'USER']}><LessonViewer /></ProtectedRoute>} />

@@ -19,9 +19,12 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/bcorp_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
+      - JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      - CLOUDINARY_URL=cloudinary://663398369196691:sblv-WpIfaaiRdgMr4oiFGfb3hs@rfnwsate
     depends_on:
       - db
     volumes:

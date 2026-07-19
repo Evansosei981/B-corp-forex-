@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { CheckCircle2, ChevronDown, Play, Circle, Check, ArrowLeft } from 'lucide-react';
+import { CheckCircle, PlayCircle, Lock, BookOpen, ChevronDown, Play, Pause, Circle, Check, ArrowLeft, Volume2, VolumeX, Maximize } from 'lucide-react';
 import { api } from '../../services/api';
 import type { Course } from '../../utils/types';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/logo';
 
 interface Lesson {
   id: number;
@@ -32,7 +31,12 @@ export default function LessonViewer() {
   const [loading, setLoading] = useState(true);
   const [markingComplete, setMarkingComplete] = useState(false);
   const [openModules, setOpenModules] = useState<number[]>([]);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [played, setPlayed] = useState(0);
+  const [muted, setMuted] = useState(false);
+  const [videoEnded, setVideoEnded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -57,7 +61,9 @@ export default function LessonViewer() {
         // Auto-select first lesson if available
         if (modulesData.length > 0 && modulesData[0].lessons.length > 0) {
           setActiveLesson(modulesData[0].lessons[0]);
-          setIsVideoPlaying(false);
+          setIsPlaying(false);
+          setPlayed(0);
+          setVideoEnded(false);
         }
       } catch (err) {
         console.error(err);
@@ -76,19 +82,46 @@ export default function LessonViewer() {
     );
   };
 
-  const getYoutubeId = (url: string) => {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+  const getVideoUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    // Fallback if backend returned a relative path
+    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://127.0.0.1:8080';
+    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
-  const getEmbedUrl = (url: string, autoplay = false) => {
-    const ytId = getYoutubeId(url);
-    if (ytId) {
-      return `https://www.youtube.com/embed/${ytId}?rel=0&modestbranding=1&showinfo=0${autoplay ? '&autoplay=1' : ''}`;
+  const handleTimeUpdate = () => {
+    if (videoRef.current && !videoEnded) {
+      const progress = videoRef.current.currentTime / videoRef.current.duration;
+      setPlayed(progress || 0);
     }
-    return url;
+  };
+
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = parseFloat(e.target.value);
+    setPlayed(newValue);
+    if (videoRef.current) {
+      videoRef.current.currentTime = newValue * videoRef.current.duration;
+    }
+  };
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement && containerRef.current) {
+      containerRef.current.requestFullscreen().catch(err => console.error(err));
+    } else if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => console.error(err));
+    }
   };
 
   const handleMarkComplete = async () => {
@@ -161,7 +194,9 @@ export default function LessonViewer() {
                               type="button"
                               onClick={() => {
                                 setActiveLesson(lesson);
-                                setIsVideoPlaying(false);
+                                setIsPlaying(false);
+                                setPlayed(0);
+                                setVideoEnded(false);
                               }}
                               className={cn(
                                 'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors',
@@ -196,28 +231,43 @@ export default function LessonViewer() {
         <div className="min-w-0 flex-1">
           {activeLesson ? (
             <>
-              <div className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-black shadow-lg">
-                {!isVideoPlaying && getYoutubeId(activeLesson.videoUrl) ? (
-                  <div 
-                    className="absolute inset-0 w-full h-full cursor-pointer group flex items-center justify-center bg-card"
-                    onClick={() => setIsVideoPlaying(true)}
-                  >
-                    <div className="absolute inset-0 flex items-center justify-center opacity-30 grayscale blur-[2px] group-hover:opacity-40 transition-opacity">
-                      <Logo className="scale-150" />
-                    </div>
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-colors">
-                      <div className="flex size-16 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow-xl transition-transform group-hover:scale-110">
-                        <Play className="size-8 ml-1" fill="currentColor" />
-                      </div>
-                    </div>
+              <div ref={containerRef} className="relative aspect-video overflow-hidden rounded-2xl border border-border bg-black shadow-lg group">
+                <video
+                  ref={videoRef}
+                  src={getVideoUrl(activeLesson.videoUrl)}
+                  className="absolute inset-0 w-full h-full object-contain"
+                  controls
+                  controlsList="nodownload"
+                  onTimeUpdate={handleTimeUpdate}
+                  onEnded={() => {
+                    setIsPlaying(false);
+                    setVideoEnded(true);
+                  }}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                />
+
+                {/* Solid Black Cover for Lesson Completed */}
+                {videoEnded && (
+                  <div className="absolute inset-0 bg-black z-40 flex items-center justify-center flex-col gap-4">
+                    <CheckCircle2 className="size-16 text-success" />
+                    <p className="text-white font-medium">Lesson Completed!</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => {
+                        setPlayed(0);
+                        if (videoRef.current) {
+                          videoRef.current.currentTime = 0;
+                          videoRef.current.play();
+                        }
+                        setVideoEnded(false);
+                        setIsPlaying(true);
+                      }}
+                    >
+                      Watch Again
+                    </Button>
                   </div>
-                ) : (
-                  <iframe
-                    src={getEmbedUrl(activeLesson.videoUrl, isVideoPlaying)}
-                    className="absolute inset-0 w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
                 )}
               </div>
 

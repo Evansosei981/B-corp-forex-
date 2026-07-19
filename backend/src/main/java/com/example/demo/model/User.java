@@ -37,6 +37,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @com.fasterxml.jackson.annotation.JsonIgnore
     private String password;
+    
+    private String profilePictureUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

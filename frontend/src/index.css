@@ -43,37 +43,42 @@
   --color-gold-500: #c1a120;
   --color-surface: var(--card);
   --color-foreground-muted: var(--muted-foreground);
+  --color-trading-up: var(--trading-up);
+  --color-trading-down: var(--trading-down);
 }
 
 :root {
   color-scheme: dark;
-  --background: oklch(0.13 0.004 285);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.17 0.004 285);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.16 0.004 285);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.83 0.13 96);
-  --primary-foreground: oklch(0.18 0.02 96);
-  --secondary: oklch(0.24 0.004 285);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.22 0.004 285);
-  --muted-foreground: oklch(0.7 0.006 285);
-  --accent: oklch(0.24 0.006 285);
-  --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.62 0.2 25);
-  --success: oklch(0.72 0.16 150);
-  --success-foreground: oklch(0.16 0.02 150);
-  --warning: oklch(0.75 0.15 65);
-  --warning-foreground: oklch(0.18 0.02 65);
-  --border: oklch(0.27 0.005 285);
-  --input: oklch(0.27 0.005 285);
-  --ring: oklch(0.83 0.13 96);
-  --radius: 0.75rem;
+  --background: #0b0e11;
+  --foreground: #ffffff;
+  --card: #1e2329;
+  --card-foreground: #ffffff;
+  --popover: #2b3139;
+  --popover-foreground: #ffffff;
+  --primary: #FCD535;
+  --primary-foreground: #181a20;
+  --secondary: #2b3139;
+  --secondary-foreground: #ffffff;
+  --muted: #1e2329;
+  --muted-foreground: #929aa5;
+  --accent: #2b3139;
+  --accent-foreground: #ffffff;
+  --destructive: #f6465d;
+  --success: #0ecb81;
+  --success-foreground: #ffffff;
+  --warning: #FCD535;
+  --warning-foreground: #181a20;
+  --border: #2b3139;
+  --input: #2b3139;
+  --ring: #FCD535;
+  --radius: 0.375rem;
+
+  --trading-up: #0ecb81;
+  --trading-down: #f6465d;
 
   /* Legacy mapping for parts of app not ported yet */
-  --color-gold-300: #dccc5c;
-  --color-gold-500: #c1a120;
+  --color-gold-300: #f0b90b;
+  --color-gold-500: #FCD535;
 }
 
 @layer base {
@@ -176,4 +181,17 @@
 
 @utility animate-scale-in {
   animation: scale-in 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 25s linear infinite;
 }

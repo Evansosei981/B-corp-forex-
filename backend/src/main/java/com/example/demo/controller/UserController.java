@@ -37,6 +37,10 @@ public class UserController {
             user.setLastName(request.getLastName());
         }
 
+        if (request.getProfilePictureUrl() != null && !request.getProfilePictureUrl().trim().isEmpty()) {
+            user.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
+
         if (request.getNewPassword() != null && !request.getNewPassword().isEmpty()) {
             if (request.getCurrentPassword() == null || !passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
                 throw new RuntimeException("Current password is incorrect");

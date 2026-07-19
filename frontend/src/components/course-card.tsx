@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Heart, ArrowRight, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SpotlightCard } from '@/components/ui/spotlight-card'
 import { Logo } from '@/components/logo'
 import { cn } from '@/lib/utils'
 import type { Course } from '@/utils/types'
@@ -29,12 +30,12 @@ export function CourseCard({
   }
 
   return (
-    <div className={cn(
-      "group flex flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 h-full relative",
-      isLocked 
-        ? "border-border/50 bg-card/50" 
-        : "border-border hover:-translate-y-1 hover:shadow-xl hover:border-primary/40"
-    )}>
+    <SpotlightCard 
+      className={cn(
+        "group flex flex-col overflow-hidden transition-all duration-300 h-full w-full",
+        isLocked && "opacity-80"
+      )}
+    >
       {isLocked && (
         <div className="absolute inset-0 z-20" aria-hidden="true" />
       )}
@@ -155,6 +156,6 @@ export function CourseCard({
           )}
         </div>
       </div>
-    </div>
+    </SpotlightCard>
   )
 }

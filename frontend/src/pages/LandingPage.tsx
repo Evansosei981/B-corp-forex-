@@ -14,6 +14,11 @@ import { SiteFooter } from '@/components/site-footer'
 import { buttonVariants } from '@/components/ui/button'
 import { AnimatedSection } from '@/components/AnimatedSection'
 import { AnimatedCounter } from '@/components/AnimatedCounter'
+import { FlashlightGrid } from '@/components/ui/flashlight-grid'
+import { SpotlightCard } from '@/components/ui/spotlight-card'
+import { MagneticButton } from '@/components/ui/magnetic-button'
+import { Marquee } from '@/components/ui/marquee'
+import { FAQSection } from '@/components/FAQSection'
 import { motion } from 'framer-motion'
 
 const features = [
@@ -50,18 +55,15 @@ export default function LandingPage() {
       <SiteHeader />
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -top-40 left-1/2 h-[38rem] w-[38rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px] animate-breathe"
-          />
-          <div className="mx-auto max-w-6xl px-4 pt-16 pb-10 sm:px-6 sm:pt-24">
+        <section className="relative overflow-hidden bg-background">
+          <FlashlightGrid />
+          <div className="relative z-10 mx-auto max-w-6xl px-4 pt-16 pb-10 sm:px-6 sm:pt-24">
             <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground animate-fade-in-up">
+              <span className="inline-flex items-center gap-2 rounded border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground animate-fade-in-up">
                 <span className="flex size-1.5 rounded-full bg-primary" />
                 New: 2026 Institutional Order Flow module
               </span>
-              <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl animate-fade-in-up [animation-delay:150ms]">
+              <h1 className="mt-6 text-balance text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl animate-fade-in-up [animation-delay:150ms]">
                 Master the Markets with{' '}
                 <span className="text-primary text-gradient-gold animate-text-shimmer">Precision</span>
               </h1>
@@ -71,10 +73,12 @@ export default function LandingPage() {
                 mentorship, real results.
               </p>
               <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row animate-fade-in-up [animation-delay:450ms]">
-                <Link to="/register" className={buttonVariants({ size: "lg", className: "h-11 px-6 text-sm w-full sm:w-auto group" })}>
-                  Get Started
-                  <ArrowRight className="transition-transform group-hover:translate-x-1" />
-                </Link>
+                <MagneticButton>
+                  <Link to="/register" className={buttonVariants({ size: "lg", className: "h-12 rounded-full px-8 font-bold text-sm w-full sm:w-auto group" })}>
+                    Get Started
+                    <ArrowRight className="transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </MagneticButton>
                 <Link
                   to="/login"
                   className={buttonVariants({ variant: "outline", size: "lg", className: "h-11 px-6 text-sm w-full sm:w-auto" })}
@@ -99,10 +103,7 @@ export default function LandingPage() {
               transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
               className="relative mx-auto mt-16 max-w-5xl animate-scale-in [animation-delay:750ms]"
             >
-              {/* Glowing Aura behind mockup */}
-              <div className="absolute inset-0 -m-8 rounded-full bg-primary/20 blur-[100px] animate-breathe pointer-events-none" />
-              
-              <div className="glow-gold overflow-hidden rounded-2xl border border-border/50 bg-card/80 backdrop-blur-md relative z-10">
+              <div className="overflow-hidden rounded-xl border border-border bg-card relative z-10 shadow-xl">
                 <div className="flex items-center gap-1.5 border-b border-border/50 bg-secondary/20 px-4 py-3 backdrop-blur-sm">
                   <span className="size-3 rounded-full bg-muted-foreground/30" />
                   <span className="size-3 rounded-full bg-muted-foreground/30" />
@@ -119,14 +120,29 @@ export default function LandingPage() {
               </div>
             </motion.div>
           </div>
+
+          {/* Social Proof Marquee */}
+          <div className="border-t border-border/50 bg-secondary/10 py-6">
+            <p className="mb-6 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Students consistently passing evaluations with
+            </p>
+            <Marquee>
+              <span className="text-xl font-bold text-muted-foreground opacity-50">FTMO</span>
+              <span className="text-xl font-bold text-muted-foreground opacity-50">FundedNext</span>
+              <span className="text-xl font-bold text-muted-foreground opacity-50">Topstep</span>
+              <span className="text-xl font-bold text-muted-foreground opacity-50">Alpha Capital</span>
+              <span className="text-xl font-bold text-muted-foreground opacity-50">True Forex Funds</span>
+              <span className="text-xl font-bold text-muted-foreground opacity-50">MyFundedFX</span>
+            </Marquee>
+          </div>
         </section>
 
         {/* Stats */}
-        <section className="border-y border-border/60 bg-card/30 backdrop-blur-sm">
+        <section className="border-y border-border bg-card">
           <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px px-4 sm:px-6 lg:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="px-2 py-8 text-center">
-                <p className="text-3xl font-semibold tracking-tight text-primary">
+              <div key={stat.label} className="px-2 py-8 text-center border-r border-border/50 last:border-0">
+                <p className="text-4xl font-bold tracking-tight text-primary">
                   <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -140,8 +156,8 @@ export default function LandingPage() {
         {/* Features */}
         <section id="features" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 scroll-mt-24">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-medium text-primary">Why B Corp Forex</p>
-            <h2 className="mt-3 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+            <p className="text-sm font-bold text-primary">Why B Corp Forex</p>
+            <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
               Everything you need to trade like a professional
             </h2>
             <p className="mt-4 text-pretty text-muted-foreground">
@@ -157,34 +173,34 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: index * 0.15 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative overflow-hidden rounded-2xl border border-white/5 bg-white/5 p-7 backdrop-blur-xl transition-all hover:border-primary/50 hover:shadow-[0_0_30px_-5px_rgba(234,179,8,0.3)]"
+                whileHover={{ y: -8 }}
               >
-                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/30">
-                  <feature.icon className="size-5" />
-                </div>
-                <h3 className="mt-5 text-lg font-semibold text-white">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                  {feature.description}
-                </p>
+                <SpotlightCard className="p-7">
+                  <div className="flex size-11 items-center justify-center rounded bg-secondary text-primary">
+                    <feature.icon className="size-5" />
+                  </div>
+                  <h3 className="mt-5 text-lg font-semibold text-white">{feature.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                    {feature.description}
+                  </p>
+                </SpotlightCard>
               </motion.div>
             ))}
           </div>
         </section>
 
+        {/* FAQ Section */}
+        <FAQSection />
+
         {/* CTA */}
         <AnimatedSection id="pricing" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6 scroll-mt-24">
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12 sm:py-20">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -bottom-24 left-1/2 h-72 w-[36rem] -translate-x-1/2 rounded-full bg-primary/10 blur-[100px] animate-breathe"
-            />
+          <div className="relative overflow-hidden rounded-xl border border-border bg-card px-6 py-14 text-center sm:px-12 sm:py-20">
             <div className="relative">
-              <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1 text-xs text-muted-foreground">
+              <div className="mx-auto flex w-fit items-center gap-2 rounded border border-border bg-secondary px-3 py-1 text-xs text-muted-foreground">
                 <TrendingUp className="size-3.5 text-primary" />
                 Join 12,400+ funded and independent traders
               </div>
-              <h2 className="mx-auto mt-6 max-w-2xl text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+              <h2 className="mx-auto mt-6 max-w-2xl text-balance text-3xl font-bold tracking-tight sm:text-4xl">
                 Your trading edge starts today
               </h2>
               <p className="mx-auto mt-4 max-w-lg text-pretty text-muted-foreground">
@@ -192,7 +208,7 @@ export default function LandingPage() {
                 future update for a single one-time investment.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link to="/catalog" className={buttonVariants({ size: "lg", className: "h-11 px-6 text-sm w-full sm:w-auto group" })}>
+                <Link to="/catalog" className={buttonVariants({ size: "lg", className: "h-12 rounded-full font-bold px-8 text-sm w-full sm:w-auto group" })}>
                   Browse Courses
                   <ArrowRight className="transition-transform group-hover:translate-x-1" />
                 </Link>

@@ -15,6 +15,28 @@ const nav = [
 export function AppHeader({ active = 'Dashboard' }: { active?: string }) {
   const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  const fetchUser = () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}')
+      setUser(userData)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  useEffect(() => {
+    fetchUser()
+    window.addEventListener('user-updated', fetchUser)
+    return () => window.removeEventListener('user-updated', fetchUser)
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    navigate('/')
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
@@ -57,30 +79,26 @@ export function AppHeader({ active = 'Dashboard' }: { active?: string }) {
           <Button variant="ghost" size="icon" aria-label="Notifications">
             <Bell />
           </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="ml-1 hidden sm:inline-flex"
-            onClick={() => navigate('/settings')}
+          <button 
+            onClick={() => navigate('/dashboard/settings')}
+            className="ml-2 flex size-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary hover:opacity-80 transition-opacity"
+            title="Profile Settings"
           >
-            <Settings />
-            Profile Settings
-          </Button>
+            {user?.profilePictureUrl ? (
+              <img src={user.profilePictureUrl} alt="Avatar" className="h-full w-full object-cover" />
+            ) : (
+              user?.firstName?.charAt(0) || 'G'
+            )}
+          </button>
           <Button
             variant="ghost"
             size="icon"
             aria-label="Sign out"
-            onClick={() => {
-              localStorage.removeItem('user');
-              localStorage.removeItem('token');
-              navigate('/');
-            }}
+            onClick={handleLogout}
+            className="ml-1 hidden sm:inline-flex"
           >
             <LogOut />
           </Button>
-          <div className="ml-1 flex size-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-            {localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).firstName?.charAt(0) || 'U' : 'G'}
-          </div>
         </div>
       </div>
 
@@ -103,14 +121,6 @@ export function AppHeader({ active = 'Dashboard' }: { active?: string }) {
                 {item.name}
               </Link>
             ))}
-            <Link
-              to="/settings"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-muted-foreground hover:bg-secondary/50 hover:text-foreground sm:hidden"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <Settings className="size-5" />
-              Profile Settings
-            </Link>
           </nav>
         </div>
       )}

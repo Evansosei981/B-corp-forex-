@@ -12,7 +12,8 @@ export default function AdminSettings() {
   const [settings, setSettings] = useState({
     'payment.bank.name': '',
     'payment.bank.accountName': '',
-    'payment.bank.accountNo': ''
+    'payment.bank.accountNo': '',
+    'payment.admin.whatsapp': ''
   });
   
   const [globalSuccess, setGlobalSuccess] = useState('');
@@ -27,7 +28,8 @@ export default function AdminSettings() {
         setSettings({
           'payment.bank.name': response.data['payment.bank.name'] || 'Guaranty Trust Bank (GTB)',
           'payment.bank.accountName': response.data['payment.bank.accountName'] || 'B CORP FOREX ACADEMY',
-          'payment.bank.accountNo': response.data['payment.bank.accountNo'] || '0123456789'
+          'payment.bank.accountNo': response.data['payment.bank.accountNo'] || '0123456789',
+          'payment.admin.whatsapp': response.data['payment.admin.whatsapp'] || '1234567890'
         });
       } catch (err) {
         console.error(err);
@@ -120,6 +122,17 @@ export default function AdminSettings() {
               onChange={e => handleChange('payment.bank.accountNo', e.target.value)}
               className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-gold-500 focus:border-gold-500 text-sm transition-colors font-mono"
             />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-foreground mb-1.5">Admin WhatsApp Number</label>
+            <input 
+              required
+              value={settings['payment.admin.whatsapp']}
+              onChange={e => handleChange('payment.admin.whatsapp', e.target.value)}
+              placeholder="+1234567890"
+              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-gold-500 focus:border-gold-500 text-sm transition-colors font-mono"
+            />
+            <p className="text-xs text-foreground-muted mt-1.5">Include country code without '+' (e.g., 1234567890). This is where students will send their payment receipts.</p>
           </div>
         </div>
 

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
 import { AppHeader } from '@/components/app-header';
 import { Button } from '@/components/ui/button';
+import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 export default function StudentSettings() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [profilePictureUrl, setProfilePictureUrl] = useState('');
   
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -14,6 +16,7 @@ export default function StudentSettings() {
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -21,9 +24,10 @@ export default function StudentSettings() {
     const fetchProfile = async () => {
       try {
         const response = await api.get('/users/me');
-        setFirstName(response.data.firstName);
-        setLastName(response.data.lastName);
-        setEmail(response.data.email);
+        setFirstName(response.data.firstName || '');
+        setLastName(response.data.lastName || '');
+        setEmail(response.data.email || '');
+        setProfilePictureUrl(response.data.profilePictureUrl || '');
       } catch (err) {
         console.error(err);
       } finally {
@@ -40,14 +44,19 @@ export default function StudentSettings() {
     setSavingProfile(true);
     
     try {
-      const response = await api.put('/users/me', { firstName, lastName });
+      const response = await api.put('/users/me', { firstName, lastName, profilePictureUrl });
       // Update local storage
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       localStorage.setItem('user', JSON.stringify({
         ...userData,
         firstName: response.data.firstName,
-        lastName: response.data.lastName
+        lastName: response.data.lastName,
+        profilePictureUrl: response.data.profilePictureUrl
       }));
+      
+      // Dispatch event to update AppHeader immediately
+      window.dispatchEvent(new Event('user-updated'));
+      
       setSuccess('Profile updated successfully!');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update profile');
@@ -90,8 +99,50 @@ export default function StudentSettings() {
         {success && <div className="p-4 bg-success/10 text-success rounded-lg border border-success/20 text-sm font-medium">{success}</div>}
 
         {/* Profile Settings */}
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+        <SpotlightCard className="p-6 sm:p-8">
           <h2 className="text-xl font-semibold mb-6">Personal Information</h2>
+          
+          <div className="mb-8 flex items-center gap-6">
+            <div className="relative h-24 w-24 rounded-full border border-border overflow-hidden bg-surface flex-shrink-0 flex items-center justify-center">
+              {uploadingAvatar ? (
+                <div className="text-xs text-muted-foreground animate-pulse">Uploading...</div>
+              ) : profilePictureUrl ? (
+                <img src={profilePictureUrl} alt="Avatar" className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-3xl font-bold text-muted-foreground">{firstName.charAt(0)}{lastName.charAt(0)}</span>
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground mb-1">Profile Picture</p>
+              <p className="text-xs text-muted-foreground mb-3">JPG, PNG or GIF. Max size of 5MB.</p>
+              <label className="relative cursor-pointer bg-secondary hover:bg-secondary/80 text-foreground font-medium py-1.5 px-4 rounded-md text-sm transition-colors">
+                <span>Upload New</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      setUploadingAvatar(true);
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      const res = await api.post('/uploads', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                      });
+                      setProfilePictureUrl(res.data.url);
+                    } catch (err) {
+                      setError('Failed to upload image');
+                    } finally {
+                      setUploadingAvatar(false);
+                    }
+                  }} 
+                />
+              </label>
+            </div>
+          </div>
+
           <form onSubmit={handleUpdateProfile} className="space-y-5">
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
@@ -130,10 +181,10 @@ export default function StudentSettings() {
               </Button>
             </div>
           </form>
-        </div>
+        </SpotlightCard>
 
         {/* Security Settings */}
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+        <SpotlightCard className="p-6 sm:p-8">
           <h2 className="text-xl font-semibold mb-6">Security</h2>
           <form onSubmit={handleUpdatePassword} className="space-y-5">
             <div className="space-y-2">
@@ -164,7 +215,7 @@ export default function StudentSettings() {
               </Button>
             </div>
           </form>
-        </div>
+        </SpotlightCard>
 
       </div>
     </div>

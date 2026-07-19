@@ -18,15 +18,11 @@ public class FileUploadController {
     private final FileStorageService fileStorageService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STUDENT')")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
-        String fileName = fileStorageService.storeFile(file);
+        // storeFile now directly returns the secure Cloudinary URL
+        String fileUrl = fileStorageService.storeFile(file);
         
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/uploads/")
-                .path(fileName)
-                .toUriString();
-                
-        return ResponseEntity.ok(Map.of("url", fileDownloadUri));
+        return ResponseEntity.ok(Map.of("url", fileUrl));
     }
 }
