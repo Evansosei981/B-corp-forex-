@@ -23,6 +23,12 @@ export default function DeveloperPortal() {
   const checkAuth = async (key: string) => {
     setIsAuthenticating(true);
     setAuthError('');
+    
+    // Show 'waking up server' message if it takes more than 3 seconds
+    const timeout = setTimeout(() => {
+      setAuthError('Waking up backend server... this may take up to 60 seconds on free hosting.');
+    }, 3000);
+
     try {
       const res = await fetch(`${DEV_API_URL}/settings`, {
         headers: { 'X-Developer-Key': key }
@@ -32,6 +38,7 @@ export default function DeveloperPortal() {
         setSettings(data);
         setIsAuthenticated(true);
         sessionStorage.setItem('devKey', key);
+        setAuthError('');
       } else {
         setAuthError('Invalid Developer Key');
         sessionStorage.removeItem('devKey');
@@ -40,6 +47,7 @@ export default function DeveloperPortal() {
     } catch (err) {
       setAuthError('Network error connecting to system core.');
     } finally {
+      clearTimeout(timeout);
       setIsAuthenticating(false);
     }
   };
