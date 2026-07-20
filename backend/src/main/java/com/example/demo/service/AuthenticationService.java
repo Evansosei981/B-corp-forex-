@@ -68,22 +68,14 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
-                    )
-            );
-        } catch (org.springframework.security.authentication.DisabledException e) {
-            throw new RuntimeException("Please verify your email address before logging in. Check your inbox for the verification link.");
-        }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
-                
-        if (!user.isEnabled()) {
-            throw new RuntimeException("Please verify your email address before logging in.");
-        }
         
         if (user.getRole() == Role.ADMIN) {
             boolean adminDisabled = appSettingRepository.findBySettingKey("dev_adminLoginDisabled")
