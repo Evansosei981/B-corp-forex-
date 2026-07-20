@@ -37,7 +37,6 @@ const PageLoader = () => (
 function App() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
-  const [isLoadingStatus, setIsLoadingStatus] = useState(true);
 
   useEffect(() => {
     const checkStatus = async () => {
@@ -53,16 +52,10 @@ function App() {
         }
       } catch (e) {
         console.error('Failed to check system status');
-      } finally {
-        setIsLoadingStatus(false);
       }
     };
     checkStatus();
   }, []);
-
-  if (isLoadingStatus) {
-    return <div className="min-h-dvh flex items-center justify-center bg-black"><span className="text-white">Loading system...</span></div>;
-  }
 
   // Allow developer portal to bypass maintenance mode
   const isDevPortal = window.location.pathname === '/dev-portal';
